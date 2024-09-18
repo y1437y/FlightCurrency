@@ -1,6 +1,5 @@
 package com.example.flightcurrency.views.items
 
-import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,10 +60,9 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, selectedIndex: Int, o
             containerColor = MaterialTheme.colorScheme.primary
         ),
         onClick = {
-            onSelect(int)  // Update the selected index when clicked
+            onSelect(int)
             inputText = String.format(Locale.TAIWAN, "%.2f", currencyData.currencyValue)
-            focus.requestFocus()  // Request focus for the BasicTextField
-            //keyboardController?.show()  // Show the keyboard when the card is clicked
+            focus.requestFocus()
         }
     ) {
         Row(
@@ -88,7 +85,6 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, selectedIndex: Int, o
             Spacer(modifier = Modifier.width(8.dp))
             if (selectedIndex == int) {
                 LaunchedEffect(Unit) {
-                    // Ensure focus is requested when this composable becomes active
                     focus.requestFocus()
                 }
                 BasicTextField(
