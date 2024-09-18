@@ -57,7 +57,6 @@ class FlightModel: ViewModel() {
 
     fun getFlightData(airFlyLine: String, airFlyIO: String, isDeparture: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.e("Check Data", "values are $airFlyLine, $airFlyIO, and $isDeparture")
             val client = OkHttpClient()
             val request = Request.Builder()
                 .url("https://www.kia.gov.tw/API/InstantSchedule.ashx?AirFlyLine=$airFlyLine&AirFlyIO=$airFlyIO")

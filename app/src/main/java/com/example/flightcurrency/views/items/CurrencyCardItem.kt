@@ -1,5 +1,6 @@
 package com.example.flightcurrency.views.items
 
+import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,12 +40,14 @@ import com.example.flightcurrency.model.CurrencyModel
 import java.util.Locale
 
 @Composable
-fun CurrencyCardItem(currencyData: CurrencyData, int: Int, currencyModel: CurrencyModel = viewModel()) {
+fun CurrencyCardItem(currencyData: CurrencyData, int: Int, selectedIndex: Int, onSelect: (Int) -> Unit, currencyModel: CurrencyModel = viewModel()) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var selectedIndex by remember { mutableIntStateOf(-1) }
     var inputText by remember { mutableStateOf("") }
     val focus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+
+    val currencyList by currencyModel.currencyList.collectAsState()
+    val updatedCurrencyData = currencyList.find { it.currencyName == currencyData.currencyName }
 
     Card (
         modifier = Modifier
@@ -57,9 +62,10 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, currencyModel: Curren
             containerColor = MaterialTheme.colorScheme.primary
         ),
         onClick = {
-            selectedIndex = int
-            inputText = String.format(Locale.TAIWAN,"%.2f", currencyData.currencyValue)
-            focus.requestFocus()
+            onSelect(int)  // Update the selected index when clicked
+            inputText = String.format(Locale.TAIWAN, "%.2f", currencyData.currencyValue)
+            focus.requestFocus()  // Request focus for the BasicTextField
+            //keyboardController?.show()  // Show the keyboard when the card is clicked
         }
     ) {
         Row(
@@ -70,7 +76,7 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, currencyModel: Curren
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = currencyData.currencyName,
+                text = updatedCurrencyData?.currencyName ?: currencyData.currencyName,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp),
@@ -80,18 +86,19 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, currencyModel: Curren
             )
 
             Spacer(modifier = Modifier.width(8.dp))
-
             if (selectedIndex == int) {
+                LaunchedEffect(Unit) {
+                    // Ensure focus is requested when this composable becomes active
+                    focus.requestFocus()
+                }
                 BasicTextField(
                     value = inputText,
                     onValueChange = { it ->
-                        if (it == "") {
+                        if (it == "" || it.toDoubleOrNull() == 0.0) {
                             inputText = "0"
                             currencyModel.reCalculateCurrencyValue(
-                                currencyData.currencyName,
-                                it.toDoubleOrNull() ?: 0.0
-                            )
-                        } else {
+                                currencyData.currencyName, 1.0)
+                        }  else {
                             inputText = it
                             currencyModel.reCalculateCurrencyValue(
                                 currencyData.currencyName,
@@ -117,8 +124,9 @@ fun CurrencyCardItem(currencyData: CurrencyData, int: Int, currencyModel: Curren
                     )
                 )
             } else {
+
                 Text(
-                    text = String.format(Locale.TAIWAN,"%.2f", currencyData.currencyValue),
+                    text = String.format(Locale.TAIWAN, "%.2f", updatedCurrencyData?.currencyValue ?: currencyData.currencyValue),
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp),

@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -38,7 +39,7 @@ open class CurrencyModel: ViewModel() {
                     val value = dataObject.getDouble(key)
                     dataList.add(CurrencyData(key, value))
                 }
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     list.value = dataList
                 }
             } catch (e: IOException) {
@@ -67,8 +68,7 @@ open class CurrencyModel: ViewModel() {
                         currencyData
                     }
                 }
-
-                launch(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     list.value = newList
                 }
             }

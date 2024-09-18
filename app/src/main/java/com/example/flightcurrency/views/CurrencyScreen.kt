@@ -48,6 +48,8 @@ import java.util.Locale
 fun CurrencyScreen(currencyModel: CurrencyModel = viewModel()) {
     val currencies by currencyModel.currencyList.collectAsState()
 
+    var selectedIndex by remember { mutableIntStateOf(-1) }
+
     LaunchedEffect(Unit) { currencyModel.getCurrencyLatest("USD") }
 
     if (currencies.isEmpty()) {
@@ -61,16 +63,19 @@ fun CurrencyScreen(currencyModel: CurrencyModel = viewModel()) {
         return
     }
 
-
-
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
     ) {
         items(currencies.size) { index ->
-            CurrencyCardItem(currencyData = currencies[index], index, currencyModel)
+            CurrencyCardItem(
+                currencyData = currencies[index],
+                int = index,
+                selectedIndex = selectedIndex,
+                onSelect = { selectedIndex = it },
+                currencyModel = currencyModel
+            )
         }
     }
 }
